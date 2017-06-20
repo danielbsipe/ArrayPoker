@@ -5,10 +5,11 @@ import java.util.Scanner;
 
 public class Main {
 
-	private static int[] diceArray = new int[5];
-	private static boolean fullHouse = false;
-	private static boolean pairsAndThrees = false;
-	private static boolean straight = false;
+	private static int[] playerDiceArray = new int[5];
+	//private static int[] opponentDiceArray = new int[5];
+	private static boolean fullHouse = true;
+	private static boolean pairsAndThrees = true;
+	private static boolean straight = true;
 
 	private static void welcome() {
 
@@ -22,24 +23,77 @@ public class Main {
 	}
 
 	// Fills a dice array with 5 dice
-	private static int[] createHand() {
+	private static int[] createHand(int[] diceArray) {
 		for (int i = 0; i < diceArray.length; i++) {
 			diceArray[i] = randomGen();
-			// diceArray[i] = i + 1;
+			//diceArray[i] = i + 1;
 		}
 		return diceArray;
 	}
 
 	// Displays the dice array
-	private static void printHand() {
+	private static void printHand(int[] diceArray) {
 		for (int n : diceArray) {
 			System.out.print(n + "  ");
 		}
 		System.out.print("\n");
 	}
 
+	private static void checkFullHouse(int[] diceArray) {
+		int iCountZero = 1;
+		int iCountOne = 1;
+		int iCountTwo = 1;
+		int iCountThree = 1;
+		int lastIndexZero = 0;
+		int lastIndexOne = 0;
+		int lastIndexTwo = 0;
+		// int lastIndexThree = 0;
+		for (int i = 0; i < diceArray.length; i++) {
+			if (i == 0) {
+				lastIndexZero = diceArray[i];
+				for (int j = (i + 1); j < diceArray.length; j++) {
+					if (diceArray[i] == diceArray[j]) {
+						iCountZero++;
+					}
+				}
+			}
+			if (i == 1) {
+				lastIndexOne = diceArray[i];
+				for (int j = (i + 1); j < diceArray.length; j++) {
+					if ((diceArray[i] == diceArray[j]) && (diceArray[i] != lastIndexZero)) {
+						iCountOne++;
+					}
+				}
+			}
+			if (i == 2) {
+				lastIndexTwo = diceArray[i];
+				for (int j = (i + 1); j < diceArray.length; j++) {
+					if ((diceArray[i] == diceArray[j])
+							&& ((diceArray[i] != lastIndexZero) && (diceArray[i] != lastIndexOne))) {
+						iCountTwo++;
+					}
+				}
+			}
+			if (i == 3) {
+				for (int j = (i + 1); j < diceArray.length; j++) {
+					if ((diceArray[i] == diceArray[j]) && (diceArray[i] != lastIndexZero)
+							&& (diceArray[i] != lastIndexOne) && (diceArray[i] != lastIndexTwo)) {
+						iCountThree++;
+					}
+				}
+			}
+		}
+		if ((iCountZero == 2 && iCountOne == 3) || (iCountZero == 3 && iCountOne == 2)
+				|| (iCountZero == 2 && iCountTwo == 3) || (iCountZero == 3 && iCountTwo == 2)
+				|| (iCountZero == 3 && iCountThree == 2)) {
+			fullHouse = true;
+			System.out.println("You have a full house!");
+		} else {
+			fullHouse = false;
+		}
+	}
+
 	private static void checkPairsAndThrees(int[] diceArray) {
-		// make a logic algorithm to id the hand
 		int Taken1 = 0;
 		int Taken2 = 0;
 		int Taken3 = 0;
@@ -68,7 +122,7 @@ public class Main {
 
 			}
 
-			else if (i == 1) {
+			if (i == 1) {
 				int count = 1;
 				for (int j = (i + 1); j < diceArray.length; j++) {
 					if (diceArray[i] == diceArray[j]) {
@@ -90,7 +144,7 @@ public class Main {
 				}
 			}
 
-			else if (i == 2) {
+			if (i == 2) {
 				int count = 1;
 				for (int j = (i + 1); j < diceArray.length; j++) {
 					if (diceArray[i] == diceArray[j]) {
@@ -110,7 +164,7 @@ public class Main {
 				}
 			}
 
-			else if (i == 3) {
+			if (i == 3) {
 				int count = 1;
 				for (int j = (i + 1); j < diceArray.length; j++) {
 					if (diceArray[i] == diceArray[j]) {
@@ -128,11 +182,10 @@ public class Main {
 				}
 			}
 		}
-		if(Taken1 != Taken2 && Taken1 != Taken3 && Taken1 != Taken4 
-				&& Taken2 != Taken3 && Taken2 != Taken4 && Taken3 != Taken4){
-			pairsAndThrees = false;
-		}else{
+		if (Taken1 != 0 || Taken2 != 0 || Taken3 !=0 || Taken4 != 0) {
 			pairsAndThrees = true;
+		} else {
+			pairsAndThrees = false;
 		}
 	}
 
@@ -169,76 +222,29 @@ public class Main {
 				|| (two == 1 && three == 1 && four == 1 && five == 1 && six == 1)) {
 			straight = true;
 			System.out.println("You have a straight, congrats! \n");
-		}else{
+		} else {
 			straight = false;
 		}
 	}
-
-	private static void checkFullHouse(int[] diceArray) {
-		int iCountZero = 1;
-		int iCountOne = 1;
-		int iCountTwo = 1;
-		int iCountThree = 1;
-		int lastIndexZero = 0;
-		int lastIndexOne = 0;
-		int lastIndexTwo = 0;
-		//int lastIndexThree = 0;
-		for (int i = 0; i < diceArray.length; i++) {
-			if (i == 0) {
-				lastIndexZero = diceArray[i];
-				for (int j = (i + 1); j < diceArray.length; j++) {
-					if (diceArray[i] == diceArray[j]) {
-						iCountZero++;
-					}
-				}
-			}
-			if (i == 1) {
-				lastIndexOne = diceArray[i];
-				for (int j = (i + 1); j < diceArray.length; j++) {
-					if ((diceArray[i] == diceArray[j]) 
-							&& (diceArray[i] != lastIndexZero)) {
-						iCountOne++;
-					}
-				}
-			}
-			if (i == 2) {
-				lastIndexTwo = diceArray[i];
-				for (int j = (i + 1); j < diceArray.length; j++) {
-					if ((diceArray[i] == diceArray[j])
-							&&((diceArray[i] != lastIndexZero)
-									&&(diceArray[i]!=lastIndexOne))) {
-						iCountTwo++;
-					}
-				}
-			}
-			if (i == 3) {
-				for (int j = (i + 1); j < diceArray.length; j++) {
-					if ((diceArray[i] == diceArray[j])
-							&&(diceArray[i] != lastIndexZero)
-									&&(diceArray[i]!=lastIndexOne)
-										&&(diceArray[i]!=lastIndexTwo)) {
-						iCountThree++;
-					}
-				}
-			}
-		}
-		if ((iCountZero == 2 && iCountOne == 3) || (iCountZero == 3 && iCountOne == 2)
-				|| (iCountZero == 2 && iCountTwo == 3) || (iCountZero == 3 && iCountTwo == 2)
-				|| (iCountZero == 3 && iCountThree == 2)) {
-			System.out.println("You have a full house!");
-		} else {
-			fullHouse = false;
-		}
-	}
 	
-	private static void identifyHand(){
+	private static void resetBools(){
+		fullHouse = true;
+		pairsAndThrees = true;
+		straight = true;
+		
+	}
+
+	private static void identifyHand(int[] diceArray) {
 		checkFullHouse(diceArray);
-		if(!fullHouse){
+		if (!fullHouse) {
 			checkPairsAndThrees(diceArray);
-		}else if(!pairsAndThrees){
+		}
+		if (!pairsAndThrees) {
 			checkStraight(diceArray);
-		}else if(!straight){
-			System.out.println("I should write something encouraging.. but sometimes the truth hurts..");
+		}
+		if (!straight) {
+			System.out.println("\nI should write something encouraging.. but sometimes the truth hurts..");
+			resetBools();
 		}
 	}
 
@@ -248,13 +254,14 @@ public class Main {
 		char input;
 		do {
 
-			createHand();
-			printHand();
-			identifyHand();
+			createHand(playerDiceArray);
+			printHand(playerDiceArray);
+			identifyHand(playerDiceArray);
 
 			System.out.println("\nTo roll again, enter 'y'!");
 			Scanner s = new Scanner(System.in);
 			input = s.next().charAt(0);
+			s.close();
 
 		} while (input == 'y');
 	}
