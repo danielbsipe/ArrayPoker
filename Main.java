@@ -1,28 +1,28 @@
 package array_poker;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.Container;
 import java.awt.TextArea;
-import java.awt.event.ActionListener;
 import java.util.Random;
 import java.util.Scanner;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
-public class Main extends JFrame {
+public class Main {
 
 	private static int[] playerDiceArray = new int[5];
 	private static int[] opponentDiceArray = new int[5];
+	private static TextArea player;
+	private static TextArea opponent;
 	private static int playerScore = 0;
 	private static int opponentScore = 0;
 	private static boolean fullHouse = true;
 	private static boolean pairsAndThrees = true;
 	private static boolean straight = true;
 	private static boolean isPlayer = true;
-	static TextArea player = new TextArea(10, 50);
-	static TextArea opponent = new TextArea(10, 50);
+
+	public Main(TextArea p, TextArea o) {
+		player = p;
+		opponent = o;
+	}
 
 	private static void welcome() {
 
@@ -388,38 +388,88 @@ public class Main extends JFrame {
 			}
 		}
 	}
-	
-	private static int findHighDie(int [] diceArray){
-		int count = 0;
-		int max = 0;
+
+	private static int findHighDie(int[] diceArray) {
 		int highDie = 0;
-		for(int i = 0; i < diceArray.length; i ++){
-			if(diceArray[i]>max){
-				max = diceArray[i];
+		int pairOne = 0;
+		int pairTwo = 0;
+		for (int i = 0; i < diceArray.length; i++) {
+			if (i == 0) {
+				int count = 0;
+				for (int j = i + 1; j < diceArray.length; j++) {
+					if (diceArray[i] == diceArray[j]) {
+						count++;
+					}
+				}
+				if (count > 0) {
+					pairOne = diceArray[i];
+				}
+			}
+			if (i == 1) {
+				int count = 0;
+				for (int j = i + 1; j < diceArray.length; j++) {
+					if (diceArray[i] == diceArray[j]) {
+						count++;
+					}
+				}
+				if (count > 0 && pairOne != 0) {
+					pairTwo = diceArray[i];
+				}
+				if (count > 0 && pairOne == 0) {
+					pairOne = diceArray[i];
+				}
+
+			}
+			if (i == 2) {
+				int count = 0;
+				for (int j = i + 1; j < diceArray.length; j++) {
+					if (diceArray[i] == diceArray[j]) {
+						count++;
+					}
+				}
+				if (count > 0 && pairOne != 0) {
+					pairTwo = diceArray[i];
+				}
+				if (count > 0 && pairOne == 0) {
+					pairOne = diceArray[i];
+				}
+			}
+			if (i == 3) {
+				int count = 0;
+				for (int j = i + 1; j < diceArray.length; j++) {
+					if (diceArray[i] == diceArray[j]) {
+						count++;
+					}
+				}
+				if (count > 0 && pairOne != 0) {
+					pairTwo = diceArray[i];
+				}
+				if (count > 0 && pairOne == 0) {
+					pairOne = diceArray[i];
+				}
 			}
 		}
-		for(int j = 0; j < diceArray.length; j++){
-			if(diceArray[j] == max){
-				count++;
-			}
-			if(count == 2){
-				highDie = max;
-				break;
-			}
-			max -= 1;
+		
+		if(pairOne > pairTwo){
+			highDie = pairOne;
 		}
+		if(pairOne < pairTwo){
+			highDie = pairTwo;
+		}
+		
+
 		return highDie;
 	}
-	
-	private static void tieBreaker(){
+
+	private static void tieBreaker() {
 		int playerHighDie = findHighDie(playerDiceArray);
 		int oppHighDie = findHighDie(opponentDiceArray);
-		
-		if(playerHighDie > oppHighDie){
+
+		if (playerHighDie > oppHighDie) {
 			player.append("\nYou won the round!");
-		}else if(playerHighDie < oppHighDie){
+		} else if (playerHighDie < oppHighDie) {
 			player.append("\nYou lost the round!");
-		}else{
+		} else {
 			player.append("\nYou tied!");
 		}
 	}
@@ -444,40 +494,19 @@ public class Main extends JFrame {
 
 	}
 
-	public Main() {
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setAlwaysOnTop(true);
-		this.setTitle("DICE POKER: Inspired by the Witcher 2 Mini-Game");
-		this.setSize(1200, 400);
-		this.setLayout(new BorderLayout());
-		this.setVisible(true);
-
-		JPanel container = new JPanel();
-		JPanel panelOne = new JPanel();
-		JPanel panelTwo = new JPanel();
-		Font myFont = new Font("Arial", Font.PLAIN, 18);
-
-		container.setLayout(new GridLayout(1, 2));
-		container.add(panelOne);
-		container.add(panelTwo);
-		panelOne.add(new JLabel("Player"), BorderLayout.EAST);
-		panelTwo.add(new JLabel("Opponent"), BorderLayout.EAST);
-		panelOne.add(player);
-		panelTwo.add(opponent);
-
-		player.setEditable(false);
-		player.setFont(myFont);
-		player.setSize(100, 100);
-		opponent.setEditable(false);
-		opponent.setFont(myFont);
-		opponent.setSize(100, 100);
-
-		this.add(container);
-
-	}
-
 	public static void main(String[] args) {
-		new Main();
+		JFrame gameWindow = new JFrame();
+		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gameWindow.setAlwaysOnTop(true);
+		gameWindow.setTitle("DICE POKER: Inspired by the Witcher 2 Mini-Game");
+		gameWindow.setSize(1200, 400);
+
+		GameFrame gf = new GameFrame();
+		new Main(gf.player, gf.opponent);
+
+		Container pane = gameWindow.getContentPane();
+		pane.add("Center", gf);
+		gameWindow.setVisible(true);
 
 		welcome();
 
@@ -488,14 +517,11 @@ public class Main extends JFrame {
 			compareScores();
 			resetScores();
 
-			System.out.println("\nTo roll again, enter 'y'!");
 			Scanner s = new Scanner(System.in);
 			input = s.next().charAt(0);
-			// s.close();
 
 			player.setText("");
 			opponent.setText("");
-
 		} while (input == 'y');
 
 	}
