@@ -12,10 +12,12 @@ public class GameFrame extends JPanel implements ActionListener {
 	Button BidButton;
 	Button RollButton;
 	Button QuitButton;
+	Button ReRollButton;
 	
 	TextArea player = new TextArea("Player\n--------------\n");
 	TextArea opponent = new TextArea("Opponent\n--------------\n");
 	JPanel container = new JPanel();
+	boolean readyRoll;
 
 	public GameFrame() {
 
@@ -38,9 +40,11 @@ public class GameFrame extends JPanel implements ActionListener {
 		RollButton = new Button("Roll the Dice");
 		BidButton = new Button("Place a Bid");
 		QuitButton = new Button("Quit the Game");
+		ReRollButton = new Button("Re-Roll a Die");
 
 		container.add(BidButton);
 		container.add(RollButton);
+		container.add(ReRollButton);
 		container.add(QuitButton);
 		
 		//player.setFont(new Font(Font.MONOSPACED, Font.BOLD, 16));
@@ -49,8 +53,13 @@ public class GameFrame extends JPanel implements ActionListener {
 		this.add(container, BorderLayout.SOUTH);
 		RollButton.addActionListener(this);
 		BidButton.addActionListener(this);
+		ReRollButton.addActionListener(this);
 		QuitButton.addActionListener(this);
 
+	}
+	
+	public void setGame(Main main){
+		this.game = main;
 	}
 
 	public void actionPerformed(ActionEvent ae) {
@@ -60,13 +69,16 @@ public class GameFrame extends JPanel implements ActionListener {
 		}
 
 		if (ae.getSource() == RollButton) {
-			//game.letsPlay();
+			//game.setContinue(true);	
 		}
 
 		if (ae.getSource() == QuitButton) {
+			System.exit(0);
+		}
+		
+		if (ae.getSource() == ReRollButton) {
 			
 		}
-
 	}
 
 }

@@ -1,42 +1,71 @@
 package array_poker;
 
 import java.awt.Container;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.TextArea;
 import java.util.Random;
 import java.util.Scanner;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class Main {
 
-	private static int[] playerDiceArray = new int[5];
-	private static int[] opponentDiceArray = new int[5];
-	private static TextArea player;
-	private static TextArea opponent;
-	private static int playerScore = 0;
-	private static int opponentScore = 0;
-	private static boolean fullHouse = true;
-	private static boolean pairsAndThrees = true;
-	private static boolean straight = true;
-	private static boolean isPlayer = true;
+	private int[] playerDiceArray = new int[5];
+	private int[] opponentDiceArray = new int[5];
+	private TextArea player;
+	private TextArea opponent;
+	private int playerScore = 0;
+	private int opponentScore = 0;
+	private boolean fullHouse = true;
+	private boolean pairsAndThrees = true;
+	private boolean straight = true;
+	private boolean isPlayer = true;
+	private Scanner scanner = new Scanner(System.in);
+	public static int playerBalance;
+	public static int oppBalance;
 
 	public Main(TextArea p, TextArea o) {
 		player = p;
 		opponent = o;
 	}
 
-	private static void welcome() {
+	private void welcome() {
 
+		JFrame welcome = new JFrame();
+		welcome.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		welcome.setAlwaysOnTop(true);
+		welcome.setTitle("WELCOME TO DICE POKER");
+		welcome.setSize(600, 400);
+		welcome.setVisible(true);
+
+		JPanel textPanel = new JPanel();
+		TextArea welcomeText = new TextArea(17, 60);
+		welcomeText.append("RULES:\n" + "Scoring Hierarchy of Valid Hands:\n\n" + "Five of a Kind:  	A A A A A \n"
+				+ "Straight:        	A B C D E \n" + "Four of a Kind:  	A A A A B \n"
+				+ "Full House:      	A A A B B \n" + "Three of a Kind: 	A A A B C \n"
+				+ "Two Pairs:       	A A B B C \n" + "One Pair:        	A A B C D \n\n"
+				+ "You will have the option to REROLL one die per round\n"
+				+ "You will have the option to bid credits from from BANK\n"
+				+ "and if you win you gain your opponents credits\n" + "if you lose, your opponent gains your credits\n"
+				+ "GOOD LUCK!");
+		welcomeText.setFont(new Font("Arial", Font.PLAIN, 16));
+		welcomeText.setEditable(false);
+
+		textPanel.add(welcomeText);
+		welcome.add(textPanel);
 	}
 
 	// Pushes a random number between 1 and 6 to simulate a dice roll
-	private static int randomGen() {
+	private int randomGen() {
 		Random rand = new Random();
 		int num = rand.nextInt(6) + 1;
 		return num;
 	}
 
 	// Fills a dice array with 5 dice
-	private static int[] createHand(int[] diceArray) {
+	private int[] createHand(int[] diceArray) {
 		for (int i = 0; i < diceArray.length; i++) {
 			diceArray[i] = randomGen();
 			// diceArray[i] = i + 1;
@@ -45,7 +74,7 @@ public class Main {
 	}
 
 	// Displays the dice array
-	private static void printHand(int[] diceArray) {
+	private void printHand(int[] diceArray) {
 		for (int n : diceArray) {
 			if (isPlayer) {
 				player.append(n + "  ");
@@ -55,7 +84,8 @@ public class Main {
 		}
 	}
 
-	private static void checkFullHouse(int[] diceArray) {
+	// identifies if the player has a full house (aabbb)
+	private void checkFullHouse(int[] diceArray) {
 		int iCountZero = 1;
 		int iCountOne = 1;
 		int iCountTwo = 1;
@@ -103,6 +133,8 @@ public class Main {
 				|| (iCountZero == 2 && iCountTwo == 3) || (iCountZero == 3 && iCountTwo == 2)
 				|| (iCountZero == 3 && iCountThree == 2)) {
 			fullHouse = true;
+			pairsAndThrees = false;
+			straight = false;
 			if (isPlayer) {
 				playerScore = 4;
 				player.append("\nYou have a full house!");
@@ -115,17 +147,20 @@ public class Main {
 		}
 	}
 
+	// Checks if the player has two or more of one number (aabcd or aaabc)
 	// If a number occurs more than once in the dice array it is taken.
 	// This method walks through the dice array and compares the index i
 	// with the index j looking for matches. If there is a match, the number
 	// of matches is counted in order to determine whether the player
 	// has a pair, three of a kind, four of a kind etc.
-	private static void checkPairsAndThrees(int[] diceArray) {
+	// pairCheck is true if the player has at least one pair in hand.
+	// this is necessary to check for multiple pairs (aabbc, etc)
+	private void checkPairsAndThrees(int[] diceArray) {
 		boolean pairCheck = false;
-		int Taken1 = 0;
-		int Taken2 = 0;
-		int Taken3 = 0;
-		int Taken4 = 0;
+		int takenOne = 0;
+		int takenTwo = 0;
+		int takenThree = 0;
+		int takenFour = 0;
 		for (int i = 0; i < diceArray.length; i++) {
 			if (i == 0) {
 				int count = 1;
@@ -133,7 +168,7 @@ public class Main {
 					if (diceArray[i] == diceArray[j]) {
 						count++;
 						if (count > 1) {
-							Taken1 = diceArray[i];
+							takenOne = diceArray[i];
 						}
 					}
 				}
@@ -183,11 +218,11 @@ public class Main {
 					if (diceArray[i] == diceArray[j]) {
 						count++;
 						if (count > 1) {
-							Taken2 = diceArray[i];
+							takenTwo = diceArray[i];
 						}
 					}
 				}
-				if (Taken2 != Taken1) {
+				if (takenTwo != takenOne) {
 					if (count == 4) {
 						if (isPlayer) {
 							playerScore = 5;
@@ -235,11 +270,11 @@ public class Main {
 					if (diceArray[i] == diceArray[j]) {
 						count++;
 						if (count > 1) {
-							Taken3 = diceArray[i];
+							takenThree = diceArray[i];
 						}
 					}
 				}
-				if (Taken3 != Taken2 && Taken3 != Taken1) {
+				if (takenThree != takenTwo && takenThree != takenOne) {
 					if (count == 3) {
 						if (isPlayer) {
 							playerScore = 3;
@@ -279,11 +314,11 @@ public class Main {
 					if (diceArray[i] == diceArray[j]) {
 						count++;
 						if (count > 1) {
-							Taken4 = diceArray[i];
+							takenFour = diceArray[i];
 						}
 					}
 				}
-				if (Taken4 != Taken3 && Taken4 != Taken2 && Taken4 != Taken1) {
+				if (takenFour != takenThree && takenFour != takenTwo && takenFour != takenOne) {
 					if (count == 2) {
 						if (pairCheck) {
 							if (isPlayer) {
@@ -309,16 +344,17 @@ public class Main {
 			}
 		}
 
-		if (Taken1 != 0 || Taken2 != 0 || Taken3 != 0 || Taken4 != 0) {
+		if (takenOne != 0 || takenTwo != 0 || takenThree != 0 || takenFour != 0) {
 			pairsAndThrees = true;
+			straight = false;
 		} else {
 			pairsAndThrees = false;
 		}
 		pairCheck = false;
 	}
 
-	private static void checkStraight(int[] diceArray) {
-		// identify a possible straight
+	// identify a possible straight (abcde)
+	private void checkStraight(int[] diceArray) {
 		int one = 0;
 		int two = 0;
 		int three = 0;
@@ -361,18 +397,21 @@ public class Main {
 		}
 	}
 
-	private static void resetBools() {
+	// Once a round is complete, the bools must return to default values
+	private void resetBools() {
 		fullHouse = true;
 		pairsAndThrees = true;
 		straight = true;
 	}
 
-	private static void resetScores() {
+	// This might not be necessary, but I included it to be safe
+	private void resetScores() {
 		playerScore = 0;
 		opponentScore = 0;
 	}
 
-	private static void identifyHand(int[] diceArray) {
+	// Check the players hand for any valid dice combinations
+	private void identifyHand(int[] diceArray) {
 		checkFullHouse(diceArray);
 		if (!fullHouse) {
 			checkPairsAndThrees(diceArray);
@@ -381,14 +420,11 @@ public class Main {
 			checkStraight(diceArray);
 		}
 		if (!straight) {
-			if (isPlayer) {
-				player.append("\nI should write something encouraging.. \nbut sometimes the truth hurts.." + "\n");
-			} else {
-				opponent.append("\nI should write something encouraging.. \nbut sometimes the truth hurts.." + "\n");
-			}
 		}
 	}
 
+	// When the player and opponent have the same hand, the highest
+	// die must be found and compared in order to determine a winner
 	private static int findHighDie(int[] diceArray) {
 		int highDie = 0;
 		int pairOne = 0;
@@ -449,19 +485,21 @@ public class Main {
 				}
 			}
 		}
-		
-		if(pairOne > pairTwo){
+
+		if (pairOne > pairTwo) {
 			highDie = pairOne;
 		}
-		if(pairOne < pairTwo){
+		if (pairOne < pairTwo) {
 			highDie = pairTwo;
 		}
-		
 
 		return highDie;
 	}
 
-	private static void tieBreaker() {
+	// When the player and opponent have a tied score, the high
+	// die must be compared to determine a winner, if the high die
+	// are the same, then a tie is declared
+	private void tieBreaker() {
 		int playerHighDie = findHighDie(playerDiceArray);
 		int oppHighDie = findHighDie(opponentDiceArray);
 
@@ -474,7 +512,63 @@ public class Main {
 		}
 	}
 
-	private static void compareScores() {
+	private void reroll(int rerollDie, int[] diceArray, boolean setPlayer) {
+		isPlayer = setPlayer;
+		for (int i = 0; i < diceArray.length; i++) {
+			if (diceArray[i] == rerollDie) {
+				diceArray[i] = randomGen();
+				break;
+			}
+		}
+		printHand(diceArray);
+		identifyHand(diceArray);
+	}
+
+	private void suggestPlayerReroll() {
+		char input;
+		int rerollDie = 0;
+		player.append("\nPress 'r' if you want to RE-ROLL");
+		input = scanner.next().charAt(0);
+		if (input == 'r') {
+			player.append("\nSelect the dice VALUE you want to RE-ROLL\n");
+			rerollDie = scanner.nextInt();
+			reroll(rerollDie, playerDiceArray, true);
+		}
+
+	}
+
+	private void findOppReroll(int[] diceArray) {
+		if (pairsAndThrees || !straight) {
+			opponent.append("\n...Re-rolling...\n");
+			int rerollDie = 0;
+			int dieOne = diceArray[0];
+			int dieTwo = diceArray[1];
+			int dieThree = diceArray[2];
+			int dieFour = diceArray[3];
+			int dieFive = diceArray[4];
+			
+			if (dieOne != dieTwo && dieOne != dieThree && dieOne != dieFour && dieOne != dieFive) {
+				rerollDie = dieOne;
+			}
+			if (dieTwo != dieOne && dieTwo != dieThree && dieTwo != dieFour && dieTwo != dieFive) {
+				rerollDie = dieTwo;
+			}
+			if (dieThree != dieOne && dieThree != dieTwo && dieThree != dieFour && dieThree != dieFive) {
+				rerollDie = dieThree;
+			}
+			if (dieFour != dieOne && dieFour != dieTwo && dieFour != dieThree && dieFour != dieFive) {
+				rerollDie = dieFour;
+			}
+			if (dieFive != dieOne && dieFive != dieTwo && dieFive != dieThree && dieFive != dieFour) {
+				rerollDie = dieFive;
+			}
+			
+			reroll(rerollDie, opponentDiceArray, false);
+		}
+	}
+
+	// Scores are compared in order to determine a winner of the round
+	private void compareScores() {
 		if (playerScore > opponentScore) {
 			player.append("\nYou won the round!");
 		} else if (playerScore < opponentScore) {
@@ -484,45 +578,59 @@ public class Main {
 		}
 	}
 
-	private static void playPoker(int[] diceArray, boolean setPlayer) {
+	// setPlayer determines whether the player or opponent is playing
+	// then the game logic is executed
+	private void playPoker(int[] diceArray, boolean setPlayer) {
 		isPlayer = setPlayer;
 
 		createHand(diceArray);
 		printHand(diceArray);
 		identifyHand(diceArray);
-		resetBools();
 
 	}
 
+	public void letsPlay() {
+
+		char continueIn;
+		do {
+			playPoker(playerDiceArray, true);
+			resetBools();
+			playPoker(opponentDiceArray, false);
+			suggestPlayerReroll();
+			findOppReroll(opponentDiceArray);
+			compareScores();
+			resetBools();
+			resetScores();
+
+			continueIn = scanner.next().charAt(0);
+
+			player.setText("Player\n--------------\n");
+			opponent.setText("Opponent\n--------------\n");
+		} while (continueIn == 'y');
+		if (scanner != null) {
+			scanner.close();
+		}
+	}
+
 	public static void main(String[] args) {
+
 		JFrame gameWindow = new JFrame();
 		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gameWindow.setAlwaysOnTop(true);
 		gameWindow.setTitle("DICE POKER: Inspired by the Witcher 2 Mini-Game");
-		gameWindow.setSize(1200, 400);
+		gameWindow.setSize(800, 400);
 
 		GameFrame gf = new GameFrame();
-		new Main(gf.player, gf.opponent);
+		Main main = new Main(gf.player, gf.opponent);
+		BankAccount playerBank = new BankAccount(true, playerBalance);
+		BankAccount oppBank = new BankAccount(false, oppBalance);
 
 		Container pane = gameWindow.getContentPane();
 		pane.add("Center", gf);
 		gameWindow.setVisible(true);
+		gf.setGame(main);
 
-		welcome();
-
-		char input;
-		do {
-			playPoker(playerDiceArray, true);
-			playPoker(opponentDiceArray, false);
-			compareScores();
-			resetScores();
-
-			Scanner s = new Scanner(System.in);
-			input = s.next().charAt(0);
-
-			player.setText("");
-			opponent.setText("");
-		} while (input == 'y');
-
+		main.welcome();
+		main.letsPlay();
 	}
 }
